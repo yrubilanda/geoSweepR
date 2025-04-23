@@ -1,0 +1,130 @@
+---
+title: "intro-to-geoSweepR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro-to-geoSweepR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+# devtools::load_all() # to knit i have to run this each time? i hope not messing up
+library(geoSweepR)
+```
+
+## Introduction
+
+This vignette demonstrates how to use the `geoSweepR` package to visualize point-based geospatial data using smooth heatmaps. The package includes functions to generate 2D kernel density plots that highlight areas of high spatial concentration, with optional filtering by data type or category. Users can also overlay a basemap from external tile providers (e.g., CartoDB) to enhance spatial context.
+
+While this example uses crime incident data as a sample dataset, the tools provided in `geoSweepR` are suitable for a wide range of applications, including environmental sightings, service usage patterns, infrastructure reporting, and more.
+
+```{r}
+# Load sample data (replace with your actual data if needed)
+library(readr)
+data_path <- system.file("extdata", "dc_sample.csv", package = "geoSweepR") #YOU NEED TO USE THE DUMMY DATA IN THE EXTDATA FOLDER! THIS IS CRISTINAS CLEAN DATA
+data <- read_csv(data_path, col_names = TRUE)
+head(data)
+```
+## Function 1: make_heatmap by yrubilanda
+The `make_heatmap()` function is the core tool in this package — it creates a smooth 2D heatmap using your point data (latitude and longitude). You can keep it simple and plot everything, or customize it with optional parameters to filter by type and add a basemap for context.
+
+This function is flexible depending on what you want to show:
+- You can run it with just your coordinates and it’ll plot all your points.
+- You can filter the data by category using `col_data` and `filter_by`.
+- You can also include a basemap from map tiles (like CartoDB or OpenStreetMap) if you want something in the background.
+
+Here are some ways to use it:
+
+```R
+# Heatmap of all points (no filtering, no basemap)
+make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude")
+
+# Heatmap filtered by a specific type (in this case, only "Theft" from the offense column)
+make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
+             col_data = "offense", filter_by = "Theft")
+
+# Heatmap with a basemap layer in the background
+make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
+             basemap = my_basemap)
+```
+
+
+```{r}
+# This is the simplest version of the function — just make a heatmap of ALL your points
+make_heatmap(
+  data = data,           # your full dataset (must have lat/lon columns)
+  lat_col = "latitude",  # column that holds the latitude values
+  lon_col = "longitude", # column that holds the longitude values
+  col_data = NULL,       # you also can just leave this blank so just do not write in
+  filter_by = NULL,
+  basemap = NULL
+)
+
+# NOTE:
+# This does NOT filter by any category — it includes every row in your dataset.
+# There's also no basemap in the background — just a clean heatmap showing areas with more data points.
+# This is a great starting point if you just want to see the overall spatial density of your data.
+
+```
+
+```{r}
+# Call the heatmap function using just your point data — no basemap but you can filter by type within your column
+make_heatmap(
+  data = data,          # your dataset (must include lat/lon columns)
+  lat_col = "latitude", # the column in your data that has latitude values
+  lon_col = "longitude",# the column that has longitude values
+  col_data = "offense", # this is the column we're filtering on (like type or category of data)
+  filter_by = "Robbery" # only include rows where offense == "Robbery"
+)
+```
+
+```{r}
+# Load libraries needed for getting a basemap and working with spatial data
+library(maptiles)  # for downloading map tile layers like CartoDB
+library(sf)        # for handling spatial objects like bounding boxes
+
+# --- NOTE TO USERS ---
+# The code below creates a basemap specifically for the DC crime data we're using in this example.
+# The bbox values (xmin, xmax, ymin, ymax) define the area of interest in Washington, D.C.
+# 
+# Our `make_heatmap()` function **does not generate this basemap** — you’ll need to set this up yourself
+# based on the bounding box that makes sense for your own dataset (e.g., different city or region).
+# This step is fully up to the user — the function just adds it if you provide one.
+
+# Create a bounding box around the area you want to show on the map (in this case, part of D.C.)
+bbox <- sf::st_as_sfc(
+  sf::st_bbox(c(
+    xmin = -77.05,  # western boundary of the area (longitude)
+    xmax = -76.95,  # eastern boundary (longitude)
+    ymin = 38.85,   # southern boundary (latitude)
+    ymax = 38.95    # northern boundary (latitude)
+  ), crs = sf::st_crs(4326))  # Set the coordinate reference system (WGS84)
+)
+
+# Download the basemap tiles for that bounding box using the CartoDB Positron provider
+# You could change the provider to something else like OpenStreetMap or Stamen if you want a different style
+raster_map <- get_tiles(bbox, provider = "CartoDB.Positron")
+
+# Now use the heatmap function!
+# This draws a density map of only "Robbery" incidents from the "offense" column,
+# and overlays it on the CartoDB basemap we just downloaded
+make_heatmap(
+  data = data,               # your dataset with coordinates and optional filter column
+  lat_col = "latitude",      # name of the latitude column
+  lon_col = "longitude",     # name of the longitude column
+  col_data = "offense",      # column to filter by (can be type, category, etc.)
+  filter_by = "Robbery",     # specific value to filter for (e.g., "Robbery")
+  basemap = raster_map       # the basemap image to use as a background (optional)
+)
+
+```
+
+
+
