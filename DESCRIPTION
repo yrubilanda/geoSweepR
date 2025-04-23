@@ -13,3 +13,10 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Imports: 
+    dplyr,
+    ggplot2,
+    ggspatial,
+    rlang,
+    sf,
+    terra

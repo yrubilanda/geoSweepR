@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
-# devtools::load_all() # to knit i have to run this each time? i hope not messing up
+devtools::load_all() # to knit i have to run this each time? i hope not messing up
 library(geoSweepR)
 ```
 

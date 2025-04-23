@@ -15,6 +15,13 @@
 #' @return A ggplot2 heatmap — you can print it, save it, or add more layers if you want.
 #' @export
 #'
+#' @importFrom dplyr filter
+#' @importFrom rlang .data
+#' @importFrom sf st_as_sf st_transform st_coordinates st_crs
+#' @importFrom terra crs
+#' @importFrom ggplot2 ggplot stat_density_2d aes after_stat scale_fill_viridis_c labs theme_minimal coord_sf
+#' @importFrom ggspatial layer_spatial
+#'
 #' @examples
 #' # Plot everything without filtering
 #' make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude")
@@ -44,7 +51,7 @@ make_heatmap <- function(data, lat_col, lon_col, col_data = NULL, filter_by = NU
 
   # If the user provided a basemap, match the coordinate system to the map
   if (!is.null(basemap)) {
-    crs_target <- terra::crs(basemap)                    # get the map’s coordinate system
+    crs_target <- terra::crs(basemap)                         # get the map’s coordinate system
     data_proj <- sf::st_transform(data_sf, crs = crs_target)  # reproject your points to match the map
   } else {
     data_proj <- data_sf  # if no map, just keep the original projection (WGS 84)
@@ -86,5 +93,6 @@ make_heatmap <- function(data, lat_col, lon_col, col_data = NULL, filter_by = NU
 
   return(p)  # Return the finished heatmap plot
 }
+
 
 # devtools::load_all()  # Use this to reload your package while developing if needed
