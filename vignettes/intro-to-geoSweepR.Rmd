@@ -32,17 +32,16 @@ data_path <- system.file("extdata", "dc_sample.csv", package = "geoSweepR") #YOU
 data <- read_csv(data_path, col_names = TRUE)
 head(data)
 ```
+
 ## Function 1: make_heatmap by yrubilanda
+
 The `make_heatmap()` function is the core tool in this package — it creates a smooth 2D heatmap using your point data (latitude and longitude). You can keep it simple and plot everything, or customize it with optional parameters to filter by type and add a basemap for context.
 
-This function is flexible depending on what you want to show:
-- You can run it with just your coordinates and it’ll plot all your points.
-- You can filter the data by category using `col_data` and `filter_by`.
-- You can also include a basemap from map tiles (like CartoDB or OpenStreetMap) if you want something in the background.
+This function is flexible depending on what you want to show: - You can run it with just your coordinates and it’ll plot all your points. - You can filter the data by category using `col_data` and `filter_by`. - You can also include a basemap from map tiles (like CartoDB or OpenStreetMap) if you want something in the background.
 
 Here are some ways to use it:
 
-```R
+``` r
 # Heatmap of all points (no filtering, no basemap)
 make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude")
 
@@ -54,7 +53,6 @@ make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
 make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
              basemap = my_basemap)
 ```
-
 
 ```{r}
 # This is the simplest version of the function — just make a heatmap of ALL your points
@@ -126,5 +124,72 @@ make_heatmap(
 
 ```
 
+## Function 2: density_kriging by wompusjr
 
+The `density_kriging()` function is a secondary tool for the analysis of spatial data — it creates a basic gridded density plot using your point data (longitude and latitude). This plot displays the predicted density of observations at unobserved tiles to extrapolate your results from the original heatmap to a larger area. The function comes with set grid size and variogram model type, but these are customizable - as is the CRS, which will be converted to metric from a provided CRS.
 
+This function is designed to be used on categorical data by calculating the density of observations. By calculating density, you can use kriging methods that you would otherwise be incapable of doing by transforming the data into a continous variable with explanatory power.
+
+The function also has some flexibility - You can run it with just your coordinates and it’ll produce a prediction from all of your points - You can filter the data by category using `col_data` and `filter_by`.
+
+Here are some ways to use it:
+
+``` r
+# Plot density in standard grids and variogram types
+density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", crs = 4326)
+
+# Plot density at a different grid size or variagram style - for example 250 m^2 grid and a gaussian variogram
+density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", crs = 4236, grid_size = 250, variogram_model = "Gau")
+
+# Plot density with a just one kind of data -for example, only "Theft"
+density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", crs = 4326, col_data = "offense", filter_by = "Theft")
+```
+
+```{r}
+# Basic version of the function, running the entire code at standard levels
+density_kriging(
+  data = data,            # your full dataset (must have lat/lon columns)
+  lon_col = "longitude", # column that holds the latitude values
+  lat_col = "latitude",   # column that holds the longitude values
+  crs = 4326,             #CRS for the data region - Washington DC 
+  col_data = NULL,        #you can also leave this and the following sections blank to produce the base result
+  filter_by = NULL, 
+  grid_size = 500, 
+  variogram_model = "Sph")
+
+# NOTE:
+# This does NOT filter by any category — it uses a count derived from your entire dataset.
+
+# This is a good way to visualize how general trends in your data can be extrapolated beyond the recorded observation.
+
+```
+
+```{r}
+# Adjusted code displaying how using smaller grids could affect the data
+density_kriging(
+  data = data,            # your full dataset (must have lat/lon columns)
+  lon_col = "longitude", # column that holds the latitude values
+  lat_col = "latitude",   # column that holds the longitude values
+  crs = 4326,             #CRS for the data region - Washington DC 
+  grid_size = 250)
+
+# NOTE:
+# This still does NOT filter by any category — it uses a count derived from your entire dataset but uses smaller grid sizes to get more granular with the visualization
+
+# This can be useful for smaller datasets and for visualizing boundaries
+
+```
+
+```{r}
+# You can filter by specific values in particular categorical variables
+density_kriging(
+  data = data,            # your full dataset (must have lat/lon columns)
+  lon_col = "longitude", # column that holds the latitude values
+  lat_col = "latitude",   # column that holds the longitude values
+  crs = 4326,             #CRS for the data region - Washington DC 
+  col_data = "offense",     
+  filter_by = "Robbery")
+
+# NOTE:
+# This is a good way to visualize a specific categorical value or variable
+```
