@@ -1,3 +1,5 @@
+#' @title Kernel Density Heatmap
+#' @description
 #' Create a 2D Kernel Density Heatmap with Optional Filter and Basemap
 #'
 #' This function generates a smooth heatmap from latitude and longitude coordinates.
@@ -5,12 +7,13 @@
 #' If you want, you can filter the data to show just one type (like only "Robbery" or just "Bird A").
 #' You can also include a background map (basemap), but that part is optional.
 #'
-#' @param data A data frame with your point data — it needs to include lat/lon columns.
-#' @param lat_col A string for the name of your latitude column (e.g., "latitude").
-#' @param lon_col A string for the name of your longitude column (e.g., "longitude").
-#' @param col_data (Optional) The name of the column you want to filter by (like "offense" or "type").
-#' @param filter_by (Optional) A specific value to filter by (e.g., "Robbery"). If left blank, it shows everything.
-#' @param basemap (Optional) A background map, like something from CartoDB or OpenStreetMap. Created separately using maptiles.
+#' @param data A data frame with your point data. Needs to have latitude and longitude columns.
+#' @param lat_col A string for the name of your latitude column
+#' @param lon_col A string for the name of your longitude column
+#' @param col_data Optional. Name of the column you are using to filter your data.
+#' @param filter_by Optional. Name of the value to filter the `col_data` column by values.
+#' @param basemap Optional. Spatial base-map used for plotting.
+#' @param input_crs Optional. Specify the coordinate reference system used in your input data. Default coordinate system is EPSG:4326 (WGS 84).
 #'
 #' @return A ggplot2 heatmap — you can print it, save it, or add more layers if you want.
 #' @export
@@ -34,18 +37,23 @@
 #' make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
 #'              basemap = my_basemap)
 
-make_heatmap <- function(data, lat_col, lon_col, col_data = NULL, filter_by = NULL, basemap = NULL) {
+make_heatmap <- function(data, lat_col, lon_col, col_data = NULL, filter_by = NULL, basemap = NULL, input_crs = 4326) {
 
   # If both a column name and a value to filter by are given, filter the data down to just that value
   if (!is.null(filter_by) && !is.null(col_data)) {
     data <- dplyr::filter(data, .data[[col_data]] == filter_by)
   }
 
+  # Check to make sure the CRS system is used correctly
+  if (is.na(st_crs(input_crs))) {
+    stop("Invalid CRS: please provide a valid EPSG code or PROJ string.")
+  }
+
   # Turn your data frame into a spatial object (sf) using latitude and longitude columns
   data_sf <- sf::st_as_sf(
     data,
     coords = c(lon_col, lat_col),  # tell sf which columns are longitude and latitude
-    crs = 4326,                    # this is the standard GPS coordinate system (WGS 84)
+    crs = input_crs,                    # default to WGS 84, unless specified in the function
     remove = FALSE                 # keep the original lat/lon columns in the table just in case
   )
 

@@ -1,10 +1,42 @@
-# Cristina's Scratchpad
-# Data Exploration and Cleaning
-f <- "Data/Crime_Incidents_in_2024.csv"
-d <- read_csv(f, col_names = TRUE)
-
-
-
+#' @title Resampled Kernel Density Heatmap
+#' @description
+#' Create a 2D Kernel Density Heatmap by Resampling Small Datasets with Optional Filter and Basemap
+#'
+#' This function is an alternative to the make_heatmap() function.
+#' This function will resample data to create a heatmap when there isn't sufficient data.
+#' Can be used to resample filtered data or the whole data set.
+#' When the resample size is not specified, it will multiply the number of rows by 1000 as a default.
+#' It generates a smooth heatmap from latitude and longitude coordinates.You can also add a base-map.
+#'
+#' @param data A data frame with your point data. Needs to have latitude and longitude columns.
+#' @param lat_col A string for the name of your latitude column
+#' @param lon_col A string for the name of your longitude column
+#' @param col_data Optional. Name of the column you are using to filter your data.
+#' @param filter_by Optional. Name of the value to filter the `col_data` column by values.
+#' @param n_samples Optional. Integer to re-sample data from the `filter_by` column to a new size. Must be greater than the current number of values for `filter_by`.
+#' @param basemap Optional. Spatial base-map used for plotting.
+#' @param input_crs Optional. Specify the coordinate reference system used in your input data. Default coordinate system is EPSG:4326 (WGS 84).
+#'
+#' @return A ggplot2 heatmap — you can print it, save it, or add more layers if you want.
+#'
+#' @importFrom dplyr filter
+#' @importFrom ggplot2 ggplot stat_density_2d aes geom_polygon scale_fill_viridis_c labs theme_minimal coord_sf after_stat
+#' @importFrom sf st_as_sf st_transform st_coordinates st_crs
+#' @importFrom terra crs
+#' @importFrom ggspatial layer_spatial
+#' @importFrom rlang .data
+#'
+#' @export
+#' @examples
+#' #Resample all data without specifying `n_samples`.
+#' resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude")
+#'
+#' #Resample filtered data to 10000 and plot heatmap with resamlped data.
+#' resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude", col_data = "offense", filter_by = "Homicide", n_samples = 10000)
+#'
+#' #Resample all data to 100000 and plot heatmap with resampled data.
+#' resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude", n_samples = 10000)
+#'
 
 resample_heatmap <- function(data, lat_col, lon_col, n_samples = NULL, col_data = NULL, filter_by = NULL, basemap = NULL, input_crs = 4326){
 
@@ -16,35 +48,35 @@ resample_heatmap <- function(data, lat_col, lon_col, n_samples = NULL, col_data 
   if (!is.null(filter_by) && !is.null(col_data)) {
     data <- filter(data, .data[[col_data]] == filter_by)
 
-  #### Step 1.1.1.a: Check that there is still data after filtering. If there is no data, stop execution.
+    #### Step 1.1.1.a: Check that there is still data after filtering. If there is no data, stop execution.
     if (nrow(data) == 0){
       stop("No data left after filtering. Check your col_data and filter_by values.")
     }
 
-  ### Step 1.1.2: Resampling filtered data
+    ### Step 1.1.2: Resampling filtered data
 
-  #### Step 1.1.2.a: Set default if n_samples is NULL. Default if to multiply the number of rows by 1000.
+    #### Step 1.1.2.a: Set default if n_samples is NULL. Default is to multiply the number of rows by 1000.
     if (is.null(n_samples)){
       n_samples <- 1000 * nrow(data)
     }
 
-  #### Step 1.1.2.b: Resample filtered data with either a specified n_sample or default n_sample. (if specified, you might have to play around with this number)
+    #### Step 1.1.2.b: Resample filtered data with either a specified n_sample or default n_sample. (if specified, you might have to play around with this number)
     if(n_samples > nrow(data)){
       data <- data[sample(1:nrow(data), size = n_samples, replace = TRUE), ]
     }
 
   } else {
 
-  ## Step 1.2: No Filter on Data
+    ## Step 1.2: No Filter on Data
 
-  ### Step 1.2.1: Resampling
+    ### Step 1.2.1: Resampling
 
-  #### Step 1.2.1.a: Set default if n_samples is NULL. Default is to multiply the total number of rows in data set by 1000.
+    #### Step 1.2.1.a: Set default if n_samples is NULL. Default is to multiply the total number of rows in data set by 1000.
     if (is.null(n_samples)){
       n_samples <- 1000 * nrow(data)
     }
 
-  #### Step 1.2.1.b: Resample the entire dataset by `n_samples`.
+    #### Step 1.2.1.b: Resample the entire dataset by `n_samples`.
     if (n_samples > nrow(data)) {
       data <- data[sample(1:nrow(data), size = n_samples, replace = TRUE), ]
     }
@@ -126,4 +158,3 @@ resample_heatmap <- function(data, lat_col, lon_col, n_samples = NULL, col_data 
 }
 
 # devtools::load_all()  # Use this to reload your package while developing if needed
-

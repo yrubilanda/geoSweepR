@@ -1,18 +1,16 @@
 Package: geoSweepR
 Title: Tools for Geospatial Heatmaps and Kriging in R
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person("Rubi", "Landa", email = "first.last@example.com", role = c("aut", "cre")),
+    person("Cristina", "Garcia Leal", email = "cgleal5@utexas.edu", role = "aut"),
+    person("June", "Burke", email = "june.burke@utexas.edu", role = "aut")
+Description: This package includes functions to generate spatial heatmaps from point geospatial data using kernel density estimation or kriging. Supports filtering by category, resampling for small datasets, different coordinate reference systems, and optional basemap overlays.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Suggests: 
-    knitr,
-    rmarkdown
-VignetteBuilder: knitr
 Imports: 
     dplyr,
     ggplot2,
@@ -20,3 +18,8 @@ Imports:
     rlang,
     sf,
     terra
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+
