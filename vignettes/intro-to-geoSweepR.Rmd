@@ -19,6 +19,9 @@ devtools::load_all() # to knit i have to run this each time? i hope not messing 
 library(geoSweepR)
 ```
 
+```{r setup, include = FALSE}
+```
+
 ## Introduction
 
 This vignette demonstrates how to use the `geoSweepR` package to visualize point-based geospatial data using smooth heatmaps. The package includes functions to generate 2D kernel density plots that highlight areas of high spatial concentration, with optional filtering by data type or category. Users can also overlay a basemap from external tile providers (e.g., CartoDB) to enhance spatial context.

@@ -47,52 +47,45 @@ density_kriging  <- function(data, lon_col, lat_col, crs, col_data = NULL, filte
   )
 
   #Step 2: set it in a coordinate system that kriging is compatible with
-  d_sf <- st_transform(d_sf, 3857)  # EPSG:3857 Web Mercator
+  d_sf <- sf::st_transform(d_sf, 3857)  # EPSG:3857 Web Mercator
 
   # Step 3: create a grid over the extent
   # currently set to a 500 meter grid (adjustable)
-  grid <- st_make_grid(d_sf, cellsize = grid_size, square = TRUE)
+  grid <- sf::st_make_grid(d_sf, cellsize = grid_size, square = TRUE)
 
   # Step 4: turn grid into sf object
-  grid_sf <- st_sf(grid_id = 1:length(grid), geometry = grid)
+  grid_sf <- sf::st_sf(grid_id = 1:length(grid), geometry = grid)
 
   # Step 6: spatial join
-  joined <- st_join(grid_sf, d_sf, left = TRUE)
+  joined <- sf::st_join(grid_sf, d_sf, left = TRUE)
 
   # Step 7: group and count
-  count_sf <- joined %>%
-    group_by(grid_id) %>%
-    summarize(
-      count = n(),
-      geometry = st_geometry(first(geometry))
-    )
+  count_sf <- dplyr::summarize(
+    dplyr::group_by(joined, grid_id),
+    count = dplyr::n(),
+    geometry = sf::st_geometry(dplyr::first(geometry))
+  )
 
   # Step 8: calculate density (per km²)
-  count_sf <- count_sf %>%
-    mutate(
-      area_km2 = st_area(geometry) / 10^6,
-      density = count / area_km2
-    )
+  count_sf <- dplyr::mutate(
+    count_sf,
+    area_km2 = sf::st_area(geometry) / 10^6,
+    density = count / area_km2
+  )
 
-  # Step 9: Convert crime_counts to spatial points (coordinates and crime density)
-  # Assuming that 'crime_counts' has the correct spatial reference (3857), we use st_as_sf
-  points_sf <- count_sf %>%
-    st_as_sf(coords = c(lon_col, lat_col), crs = 3857)
+  # Step 9: Convert to spatial points
+  points_sf <- sf::st_as_sf(count_sf, coords = c(lon_col, lat_col), crs = 3857)
 
   # Step 10: Create a variogram
-  # The variogram models the spatial structure of the data
-  vgram <- variogram(density ~ 1, data = points_sf)
+  vgram <- gstat::variogram(density ~ 1, data = points_sf)
 
-  # Step 11: Fit a variogram model (e.g., Spherical model)
-  vgram_model <- fit.variogram(vgram, model = vgm(variogram_model))
+  # Step 11: Fit variogram model
+  vgram_model <- gstat::fit.variogram(vgram, model = gstat::vgm(variogram_model))
 
-  # Step 12: Perform kriging interpolation
-  # We will use the 'krige' function to perform the kriging based on the variogram model
-  kriged <- krige(density ~ 1, locations = points_sf, newdata = grid_sf, model = vgram_model)
+  # Step 12: Perform kriging
+  kriged <- gstat::krige(density ~ 1, locations = points_sf, newdata = grid_sf, model = vgram_model)
 
-  # Step 13: View kriged results
-  # The 'kriged' object will have the estimated values (crime density) for the grid
-  # You can plot the kriged result or inspect the output
+  # Step 13: Plot result
   plot(kriged["var1.pred"], main = "Predicted Density")
 }
 
