@@ -7,6 +7,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+TAKES ABOUT 5 MINUTES TO RENDER SO FAR 4/30 11:00AM, 2 FUNCTIONS
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
