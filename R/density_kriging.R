@@ -49,20 +49,29 @@ density_kriging  <- function(data, lat_col, lon_col, input_crs = 4326, col_data 
     remove = FALSE                 # keep the original lat/lon columns in the table just in case
   )
 
+<<<<<<< HEAD
   #Step 3: set it in a coordinate system that kriging is compatible with
+=======
+  #Step 2: set it in a coordinate system that kriging is compatible with
+>>>>>>> c4dc71c7cc7e723982feeb0dbc57de1fa303aa39
   d_sf <- sf::st_transform(d_sf, 3857)  # EPSG:3857 Web Mercator
 
   # Step 4: create a grid over the extent
   # currently set to a 500 meter grid (adjustable)
   grid <- sf::st_make_grid(d_sf, cellsize = grid_size, square = TRUE)
 
+<<<<<<< HEAD
   # Step 5: turn grid into sf object
+=======
+  # Step 4: turn grid into sf object
+>>>>>>> c4dc71c7cc7e723982feeb0dbc57de1fa303aa39
   grid_sf <- sf::st_sf(grid_id = 1:length(grid), geometry = grid)
 
   # Step 6: spatial join
   joined <- sf::st_join(grid_sf, d_sf, left = TRUE)
 
   # Step 7: group and count
+<<<<<<< HEAD
   count_sf <- joined %>%
     dplyr::group_by(grid_id) %>%
     dplyr::summarize(
@@ -91,11 +100,34 @@ density_kriging  <- function(data, lat_col, lon_col, input_crs = 4326, col_data 
 
   # Step 12: Perform kriging interpolation
   # We will use the 'krige' function to perform the kriging based on the variogram model
+=======
+  count_sf <- dplyr::summarize(
+    dplyr::group_by(joined, grid_id),
+    count = dplyr::n(),
+    geometry = sf::st_geometry(dplyr::first(geometry))
+  )
+
+  # Step 8: calculate density (per km²)
+  count_sf <- dplyr::mutate(
+    count_sf,
+    area_km2 = sf::st_area(geometry) / 10^6,
+    density = count / area_km2
+  )
+
+  # Step 9: Convert to spatial points
+  points_sf <- sf::st_as_sf(count_sf, coords = c(lon_col, lat_col), crs = 3857)
+
+  # Step 10: Create a variogram
+  vgram <- gstat::variogram(density ~ 1, data = points_sf)
+
+  # Step 11: Fit variogram model
+  vgram_model <- gstat::fit.variogram(vgram, model = gstat::vgm(variogram_model))
+
+  # Step 12: Perform kriging
+>>>>>>> c4dc71c7cc7e723982feeb0dbc57de1fa303aa39
   kriged <- gstat::krige(density ~ 1, locations = points_sf, newdata = grid_sf, model = vgram_model)
 
-  # Step 13: View kriged results
-  # The 'kriged' object will have the estimated values (crime density) for the grid
-  # You can plot the kriged result or inspect the output
+  # Step 13: Plot result
   plot(kriged["var1.pred"], main = "Predicted Density")
 }
 

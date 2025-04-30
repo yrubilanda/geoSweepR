@@ -7,6 +7,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+TAKES ABOUT 5 MINUTES TO RENDER SO FAR 4/30 11:00AM, 2 FUNCTIONS
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -17,6 +19,9 @@ knitr::opts_chunk$set(
 ```{r}
 devtools::load_all() # to knit i have to run this each time? i hope not messing up
 library(geoSweepR)
+```
+
+```{r setup, include = FALSE}
 ```
 
 ## Introduction

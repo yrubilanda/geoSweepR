@@ -17,9 +17,14 @@ Imports:
     ggspatial,
     rlang,
     sf,
+<<<<<<< HEAD
     terra
 Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: knitr
 
+=======
+    terra,
+    gstat
+>>>>>>> c4dc71c7cc7e723982feeb0dbc57de1fa303aa39
