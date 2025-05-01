@@ -1,19 +1,19 @@
 #' @title Kernel Density Heatmap
 #' @description
-#' Create a 2D Kernel Density Heatmap with Optional Filter and Basemap
+#' Create a 2D Kernel Density Heatmap from Latitude and Longitude with Optional Filter and Basemap
 #'
 #' This function generates a smooth heatmap from latitude and longitude coordinates.
 #' You can use it to map any kind of point data (like crimes, wildlife sightings, etc.).
 #' If you want, you can filter the data to show just one type (like only "Robbery" or just "Bird A").
 #' You can also include a background map (basemap), but that part is optional.
 #'
-#' @param data A data frame with your point data. Needs to have latitude and longitude columns.
-#' @param lat_col A string for the name of your latitude column
-#' @param lon_col A string for the name of your longitude column
-#' @param col_data Optional. Name of the column you are using to filter your data.
-#' @param filter_by Optional. Name of the value to filter the `col_data` column by values.
-#' @param basemap Optional. Spatial base-map used for plotting.
-#' @param input_crs Optional. Specify the coordinate reference system used in your input data. Default coordinate system is EPSG:4326 (WGS 84).
+#' @param data Required. A data frame with your point data. Needs to have latitude and longitude columns.
+#' @param lat_col Required. A string for the name of your latitude column.
+#' @param lon_col Required. A string for the name of your longitude column.
+#' @param col_data Optional. Name of the column you are using to filter your data. Can be categorical or factor data for filtering purposes.
+#' @param filter_by Optional. Name of the value to filter the `col_data` column by values. Only works when `col_data` is also included.
+#' @param basemap Optional.  A spatial object (e.g., an `sf` or `raster` object) to use as background for plot.
+#' @param input_crs Optional. Specify a different EPSG code or PROJ string for CRS used in your input data. Default coordinate system is EPSG:4326 (WGS 84).
 #'
 #' @return A ggplot2 heatmap — you can print it, save it, or add more layers if you want.
 #' @export
@@ -26,14 +26,19 @@
 #' @importFrom ggspatial layer_spatial
 #'
 #' @examples
-#' # Plot everything without filtering
+#' # Sample Data:
+#' my_data <- read.csv(system.file("extdata", "dc_sample.csv", package = "geoSweepR"))
+#' my_basemap <- terra::rast(system.file("extdata", "my_basemap.tif", package = "geoSweepR"))
+#'
+#' # Plot all data without filtering.
 #' make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude")
 #'
-#' # Plot just one type of data — for example, only "Theft"
+#' # Plot filtered data
+#' # — Example uses only "Theft".
 #' make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
 #'              col_data = "offense", filter_by = "Theft")
 #'
-#' # Plot with a basemap underneath
+#' # Plot and add a basemap layer underneath.
 #' make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
 #'              basemap = my_basemap)
 

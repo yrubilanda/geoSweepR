@@ -1,11 +1,12 @@
 Package: geoSweepR
 Title: Tools for Geospatial Heatmaps and Kriging in R
 Version: 0.1.0
-Authors@R: 
-    person("Rubi", "Landa", email = "first.last@example.com", role = c("aut", "cre")),
-    person("Cristina", "Garcia Leal", email = "cgleal5@utexas.edu", role = "aut"),
-    person("June", "Burke", email = "june.burke@utexas.edu", role = "aut")
-Description: This package includes functions to generate spatial heatmaps from point geospatial data using kernel density estimation or kriging. Supports filtering by category, resampling for small datasets, different coordinate reference systems, and optional basemap overlays.
+Authors@R: c(person("Rubi", "Landa", email = "yrubilanda@utexas.edu", role = "cre"), 
+            person("Cristina", "Garcia Leal", email = "cgleal5@utexas.edu", role = "aut"), 
+            person("June", "Burke", email = "june.burke@utexas.edu", role = "aut"))
+Description: This package provides tools to generate spatial heatmaps from point-based geospatial data using kernel density estimation and kriging. 
+            Supports features like filtering by category, resampling for small datasets, customizing coordinate reference systems (CRS), and overlaying optional basemap.
+            Includes a sample dataset (`dc_sample.csv`) for demonstration purposes, accessible via `system.file()`.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
@@ -15,16 +16,13 @@ Imports:
     dplyr,
     ggplot2,
     ggspatial,
+    gstat,
+    readr,
     rlang,
     sf,
-<<<<<<< HEAD
     terra
 Suggests: 
     knitr,
+    maptiles,
     rmarkdown
 VignetteBuilder: knitr
-
-=======
-    terra,
-    gstat
->>>>>>> c4dc71c7cc7e723982feeb0dbc57de1fa303aa39

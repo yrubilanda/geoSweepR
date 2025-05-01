@@ -16,27 +16,27 @@ resample_heatmap(
 )
 }
 \arguments{
-\item{data}{A data frame with your point data. Needs to have latitude and longitude columns.}
+\item{data}{Required. A data frame with your point data. Needs to have latitude and longitude columns.}
 
-\item{lat_col}{A string for the name of your latitude column}
+\item{lat_col}{Required. A string for the name of your latitude column}
 
-\item{lon_col}{A string for the name of your longitude column}
+\item{lon_col}{Required. A string for the name of your longitude column}
 
-\item{n_samples}{Optional. Integer to re-sample data from the \code{filter_by} column to a new size. Must be greater than the current number of values for \code{filter_by}.}
+\item{n_samples}{Optional. Integer to re-sample either entire dataset or optional filtered data. Default is set to multiply the number of rows by 1000.}
 
-\item{col_data}{Optional. Name of the column you are using to filter your data.}
+\item{col_data}{Optional. Name of the column you are using to filter your data. Can be categorical or factor data for filtering purposes.}
 
-\item{filter_by}{Optional. Name of the value to filter the \code{col_data} column by values.}
+\item{filter_by}{Optional. Name of the value to filter the \code{col_data} column by values. Only works when \code{col_data} is also included.}
 
-\item{basemap}{Optional. Spatial base-map used for plotting.}
+\item{basemap}{Optional. A spatial object (e.g., an \code{sf} or \code{raster} object) to use as background for plot.}
 
-\item{input_crs}{Optional. Specify the coordinate reference system used in your input data. Default coordinate system is EPSG:4326 (WGS 84).}
+\item{input_crs}{Optional. Specify a different EPSG code or PROJ string for CRS in your input data. Default coordinate system is EPSG:4326 (WGS 84).}
 }
 \value{
-A ggplot2 heatmap — you can print it, save it, or add more layers if you want.
+A ggplot2 heatmap of resampled data — you can print it, save it, or add more layers if you want. And a resampled_data object with the data frame.
 }
 \description{
-Create a 2D Kernel Density Heatmap by Resampling Small Datasets with Optional Filter and Basemap
+Create a 2D Kernel Density Heatmap from Latitude and Longitude with Optional Filter and Basemap Using Resampled Data
 
 This function is an alternative to the make_heatmap() function.
 This function will resample data to create a heatmap when there isn't sufficient data.
@@ -45,13 +45,22 @@ When the resample size is not specified, it will multiply the number of rows by 
 It generates a smooth heatmap from latitude and longitude coordinates.You can also add a base-map.
 }
 \examples{
-#Resample all data without specifying `n_samples`.
+# Sample Data:
+my_data <- read.csv(system.file("extdata", "dc_sample.csv", package = "geoSweepR"))
+my_basemap <- terra::rast(system.file("extdata", "my_basemap.tif", package = "geoSweepR"))
+
+# Plot all resampled data without filtering or specifying resample size.
 resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude")
 
-#Resample filtered data to 10000 and plot heatmap with resamlped data.
-resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude", col_data = "offense", filter_by = "Homicide", n_samples = 10000)
+# Plot filtered data and specify resample size.
+# - Example uses only "Homicide" and resamples to 10000.
+resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude",
+                 col_data = "offense", filter_by = "Homicide", n_samples = 10000)
 
-#Resample all data to 100000 and plot heatmap with resampled data.
-resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude", n_samples = 10000)
+# Plot filtered data, specify resample size, and add a basemap layer underneath.
+# - Example uses only "Homicide" and resamples to 10000.
+resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude",
+                 col_data = "offense", filter_by = "Homicide", n_samples = 10000,
+                 basemap = my_basemap)
 
 }

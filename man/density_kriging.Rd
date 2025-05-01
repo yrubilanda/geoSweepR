@@ -2,7 +2,7 @@
 % Please edit documentation in R/density_kriging.R
 \name{density_kriging}
 \alias{density_kriging}
-\title{Kriging-Based Density Map}
+\title{Kriging-Based Spatial Density Estimation Map}
 \usage{
 density_kriging(
   data,
@@ -12,30 +12,31 @@ density_kriging(
   col_data = NULL,
   filter_by = NULL,
   grid_size = 500,
-  variogram_model = "Sph"
+  variogram_model = "Sph",
+  basemap = NULL
 )
 }
 \arguments{
-\item{data}{A data frame with your point data. Needs to have latitude and longitude columns.}
+\item{data}{Required. A data frame with your point data. Needs to have latitude and longitude columns.}
 
-\item{lat_col}{A string for the name of your latitude column}
+\item{lat_col}{Required. A string for the name of your latitude column}
 
-\item{lon_col}{A string for the name of your longitude column}
+\item{lon_col}{Required. A string for the name of your longitude column}
 
-\item{input_crs}{Optional. Specify the coordinate reference system used in your input data. Default coordinate system is EPSG:4326 (WGS 84).}
+\item{input_crs}{Optional. Specify a different EPSG code or PROJ string for CRS in your input data. Default coordinate system is EPSG:4326 (WGS 84).}
 
-\item{col_data}{Optional. Name of the column you are using to filter your data.}
+\item{col_data}{Optional. Name of the column you are using to filter your data. Can be categorical or factor data for filtering purposes.}
 
-\item{filter_by}{Optional. Name of the value to filter the \code{col_data} column by values.}
+\item{filter_by}{Optional. Name of the value to filter the \code{col_data} column by values. Only works when \code{col_data} is also included.}
 
-\item{grid_size}{Optional. The size in m^2 of your grids for counting/density. If left blank, it defaults to 500}
+\item{grid_size}{Optional. The size in m^2 of your grids for counting/density. Controls granularity in your model. Default is 500 m.}
 
 \item{variogram_model}{Optional. A specific vgm type fit for your  data's variogram (e.g., "Gau"). If left blank, it defaults to a spherical model}
 
-\item{basemap}{Optional. Spatial base-map used for plotting.}
+\item{basemap}{Optional. A spatial object (e.g., an \code{sf} or \code{raster} object) to use as background for plot..}
 }
 \value{
-A base R density plot with predicted densities of points for each grid — you can print it, save it, or add more layers if you want.
+A ggplot2 heatmap — you can print it, save it, or add more layers if you want. And a kriged_data object with the data frame.
 }
 \description{
 Create a map of predicted density through kriging
@@ -46,14 +47,20 @@ Using this function lets you infer data about missing points to better round out
 You can adjust this data to fit the CRS, grid size for analysis, and variogram type to your specific needs.
 }
 \examples{
-# Plot density in standard grids and variogram types
-density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", input_crs = 4326)
+# Sample Data:
+my_data <- read.csv(system.file("extdata", "dc_sample.csv", package = "geoSweepR"))
+my_basemap <- terra::rast(system.file("extdata", "my_basemap.tif", package = "geoSweepR"))
 
- # Plot density at a different grid size or variagram style - for example 250 m^2 grid and a gaussian variogram
-density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", input_crs = 4326,
- grid_size = 250, variogram_model = "Gau")
+# Plot density with default grid and variogram model.
+density_kriging(my_data, lon_col = "longitude", lat_col = "latitude")
 
- # Plot density with a just one kind of data -for example, only "Theft"
-density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", input_crs = 4326,
- col_data = "offense", filter_by = "Theft")
+# Plot density by specifying grid size or variagram model
+# - Example uses a 250 m^2 grid and a Gaussian model.
+density_kriging(my_data, lon_col = "longitude", lat_col = "latitude",
+                grid_size = 250, variogram_model = "Gau")
+
+# Plot density with a filtered data
+# - Examples uses only "Theft" and optional basemap.
+density_kriging(my_data, lon_col = "longitude", lat_col = "latitude",
+                col_data = "offense", filter_by = "Theft", basemap = my_basemap)
 }
