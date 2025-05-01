@@ -3,7 +3,7 @@ title: "intro-to-geoSweepR"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{intro-to-geoSweepR}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{rmarkdown::html_vignette}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -15,6 +15,9 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(geoSweepR)
+
+eval_viz <- FALSE  # Turn this to TRUE later when you want to knit full plots
+
 ```
 
 ## Introduction
@@ -61,7 +64,7 @@ make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
              basemap = my_basemap)
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # This is the simplest version of the function — just make a heatmap of ALL your points
 make_heatmap(
   data = my_data,           # your full dataset (must have lat/lon columns)
@@ -79,7 +82,7 @@ make_heatmap(
 
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # Call the heatmap function using just your point data — no basemap but you can filter by type within your column
 make_heatmap(
   data = my_data,          # your dataset (must include lat/lon columns)
@@ -90,7 +93,7 @@ make_heatmap(
 )
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # Now use the heatmap function!
 # This draws a density map of only "Robbery" incidents from the "offense" column,
 # and overlays it on the sample basemap
@@ -126,7 +129,7 @@ density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", crs = 4236
 density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", crs = 4326, col_data = "offense", filter_by = "Theft")
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # Basic version of the function, running the entire code at standard levels
 density_kriging(
   data = my_data,            # your full dataset (must have lat/lon columns)
@@ -145,7 +148,7 @@ density_kriging(
 
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # Adjusted code displaying how using smaller grids could affect the data
 density_kriging(
   data = my_data,            # your full dataset (must have lat/lon columns)
@@ -161,7 +164,7 @@ density_kriging(
 
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # You can filter by specific values in particular categorical variables
 density_kriging(
   data = my_data,            # your full dataset (must have lat/lon columns)
@@ -187,7 +190,7 @@ The parameter `n_samples` is unique to this function and gives users control ove
 
 This is the most basic way to use this function. It will default multiplying the number of rows in the entire data set (\~25,000) by 1000. It should only be used when the data set it small and limited in relation to the geographic area that is covered.
 
-```{r}
+```{r, eval = eval_viz}
 resample_heatmap(
   data = my_data, 
   lat_col = "latitude", 
@@ -199,7 +202,7 @@ resample_heatmap(
 
 The function will now multiply the number of rows that have value specified in the `filter_by` parameter in the column identified by the `col_data` parameter by 1000. In this example, the function is filtering the data set to only the rows that contain `Homicide` as the value in the column `offense`. Thus, the data set is reduced to \~150 rows from the original \~25,000. Since the `n_sample` parameter was not used, the function will multiply the \~150 rows by 1000. The rest of the function will run as if `n_samples` was defined as \~150,000.
 
-```{r}
+```{r, eval = eval_viz}
 resample_heatmap(
   data = my_data, 
   lat_col = "latitude", 
@@ -213,7 +216,7 @@ resample_heatmap(
 
 With the addition of the `n_sample` parameter, the function no longer multiplies the number of rows with the `filter_by` value by 1000. In this example, the function is filtering the data set to only the rows that contain `Homicide` as the value in the column `offense`. Thus, the data set is reduced to \~150 rows from the original \~25,000. Since the `n_sample` parameter was used, the function resamples the \~150 original rows a total of 20,000 times. This parameter is useful when the optional filter results in a very small subset of data. Lastly, in this example the parameter for `basemap` is also used, so the resulting heatmap will be overlaid on `my_basemap`.
 
-```{r}
+```{r, eval = eval_viz}
 resample_heatmap(
   data = my_data, 
   lat_col = "latitude", 
