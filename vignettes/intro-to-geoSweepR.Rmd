@@ -3,19 +3,22 @@ title: "intro-to-geoSweepR"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{intro-to-geoSweepR}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{rmarkdown::html_vignette}
   %\VignetteEncoding{UTF-8}
 ---
 
-TAKES ABOUT 5 MINUTES TO RENDER SO FAR 4/30 11:00AM, 2 FUNCTIONS
-
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+eval_viz <- FALSE  # Turn this to TRUE later when you want to knit full plots
+
 library(geoSweepR)
+
 ```
+
 
 ## Introduction
 
@@ -29,7 +32,7 @@ Functions in this package also support coordinate reference system (CRS) customi
 
 While this example uses crime incident data as a sample dataset, the tools provided in `geoSweepR` are suitable for a wide range of applications, including environmental sightings, service usage patterns, infrastructure reporting, and more. This example also uses a sample basemap, saved as a `.tif` file. Users can create or download their own basemaps to fit individual data sets.
 
-The sample data set used here was obtained from the publicly available website DATA.GOV. You can find the data by clicking on this [link](https://catalog.data.gov/dataset/crime-incidents-in-2024).
+The sample data set used here was obtained from the publicly available website [DATA.GOV](http://data.gov/). You can find the data by clicking on this [link](https://catalog.data.gov/dataset/crime-incidents-in-2024).
 
 ```{r}
 # Load sample data (replace with your actual data if needed)
@@ -48,7 +51,7 @@ This function is flexible depending on what you want to show: - You can run it w
 
 Here are some ways to use it:
 
-``` r
+```r
 # Heatmap of all points (no filtering, no basemap)
 make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude")
 
@@ -59,9 +62,10 @@ make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
 # Heatmap with a basemap layer in the background
 make_heatmap(my_data, lat_col = "latitude", lon_col = "longitude",
              basemap = my_basemap)
+
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # This is the simplest version of the function — just make a heatmap of ALL your points
 make_heatmap(
   data = my_data,           # your full dataset (must have lat/lon columns)
@@ -79,7 +83,7 @@ make_heatmap(
 
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # Call the heatmap function using just your point data — no basemap but you can filter by type within your column
 make_heatmap(
   data = my_data,          # your dataset (must include lat/lon columns)
@@ -88,9 +92,10 @@ make_heatmap(
   col_data = "offense", # this is the column we're filtering on (like type or category of data)
   filter_by = "Robbery" # only include rows where offense == "Robbery"
 )
+
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # Now use the heatmap function!
 # This draws a density map of only "Robbery" incidents from the "offense" column,
 # and overlays it on the sample basemap
@@ -115,7 +120,7 @@ The function also has some flexibility - You can run it with just your coordinat
 
 Here are some ways to use it:
 
-``` r
+```r
 # Plot density in standard grids and variogram types
 density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", crs = 4326)
 
@@ -124,18 +129,19 @@ density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", crs = 4236
 
 # Plot density with a just one kind of data -for example, only "Theft"
 density_kriging(my_data, lon_col = "longitude", lat_col = "latitude", crs = 4326, col_data = "offense", filter_by = "Theft")
+
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # Basic version of the function, running the entire code at standard levels
 density_kriging(
   data = my_data,            # your full dataset (must have lat/lon columns)
   lon_col = "longitude", # column that holds the latitude values
   lat_col = "latitude",   # column that holds the longitude values
-  input_crs = 4326,             #CRS for the data region - Washington DC 
+  input_crs = 4326,             #CRS for the data region - Washington DC
   col_data = NULL,        #you can also leave this and the following sections blank to produce the base result
-  filter_by = NULL, 
-  grid_size = 500, 
+  filter_by = NULL,
+  grid_size = 500,
   variogram_model = "Sph")
 
 # NOTE:
@@ -145,13 +151,13 @@ density_kriging(
 
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # Adjusted code displaying how using smaller grids could affect the data
 density_kriging(
   data = my_data,            # your full dataset (must have lat/lon columns)
   lon_col = "longitude", # column that holds the latitude values
   lat_col = "latitude",   # column that holds the longitude values
-  input_crs = 4326,             #CRS for the data region - Washington DC 
+  input_crs = 4326,             #CRS for the data region - Washington DC
   grid_size = 250)
 
 # NOTE:
@@ -161,18 +167,19 @@ density_kriging(
 
 ```
 
-```{r}
+```{r, eval = eval_viz}
 # You can filter by specific values in particular categorical variables
 density_kriging(
   data = my_data,            # your full dataset (must have lat/lon columns)
   lon_col = "longitude", # column that holds the latitude values
   lat_col = "latitude",   # column that holds the longitude values
-  input_crs = 4326,             #CRS for the data region - Washington DC 
-  col_data = "offense",     
+  input_crs = 4326,             #CRS for the data region - Washington DC
+  col_data = "offense",
   filter_by = "Robbery")
 
 # NOTE:
 # This is a good way to visualize a specific categorical value or variable
+
 ```
 
 ## Function 3: resample_heatmap() by cgarcialeal5
@@ -183,43 +190,45 @@ The parameter `n_samples` is unique to this function and gives users control ove
 
 ### Here are some ways to use it:
 
-#### Resampling the whole data set with no other parameters
+### Resampling the whole data set with no other parameters
 
 This is the most basic way to use this function. It will default multiplying the number of rows in the entire data set (\~25,000) by 1000. It should only be used when the data set it small and limited in relation to the geographic area that is covered.
 
-```{r}
+```{r, eval = eval_viz}
 resample_heatmap(
-  data = my_data, 
-  lat_col = "latitude", 
+  data = my_data,
+  lat_col = "latitude",
   lon_col = "longitude"
   )
+
 ```
 
-#### Resampling the filtered data set without `n_samples` parameter
+### Resampling the filtered data set without `n_samples` parameter
 
 The function will now multiply the number of rows that have value specified in the `filter_by` parameter in the column identified by the `col_data` parameter by 1000. In this example, the function is filtering the data set to only the rows that contain `Homicide` as the value in the column `offense`. Thus, the data set is reduced to \~150 rows from the original \~25,000. Since the `n_sample` parameter was not used, the function will multiply the \~150 rows by 1000. The rest of the function will run as if `n_samples` was defined as \~150,000.
 
-```{r}
+```{r, eval = eval_viz}
 resample_heatmap(
-  data = my_data, 
-  lat_col = "latitude", 
+  data = my_data,
+  lat_col = "latitude",
   lon_col = "longitude",
-  col_data = "offense", 
+  col_data = "offense",
   filter_by = "Homicide"
   )
+
 ```
 
-#### Resampling the filtered data set with `n_samples` parameter and basemap
+### Resampling the filtered data set with `n_samples` parameter and basemap
 
 With the addition of the `n_sample` parameter, the function no longer multiplies the number of rows with the `filter_by` value by 1000. In this example, the function is filtering the data set to only the rows that contain `Homicide` as the value in the column `offense`. Thus, the data set is reduced to \~150 rows from the original \~25,000. Since the `n_sample` parameter was used, the function resamples the \~150 original rows a total of 20,000 times. This parameter is useful when the optional filter results in a very small subset of data. Lastly, in this example the parameter for `basemap` is also used, so the resulting heatmap will be overlaid on `my_basemap`.
 
-```{r}
+```{r, eval = eval_viz}
 resample_heatmap(
-  data = my_data, 
-  lat_col = "latitude", 
-  lon_col = "longitude", 
-  col_data = "offense", 
-  filter_by = "Homicide", 
+  data = my_data,
+  lat_col = "latitude",
+  lon_col = "longitude",
+  col_data = "offense",
+  filter_by = "Homicide",
   n_samples = 20000,
   basemap = my_basemap
   )
