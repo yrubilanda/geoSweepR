@@ -1,6 +1,6 @@
 Package: geoSweepR
 Title: Tools for Geospatial Heatmaps and Kriging in R
-Version: 0.1.0
+Version: 0.1.5
 Authors@R: c(person("Rubi", "Landa", email = "yrubilanda@utexas.edu", role = "cre"), 
             person("Cristina", "Garcia Leal", email = "cgleal5@utexas.edu", role = "aut"), 
             person("June", "Burke", email = "june.burke@utexas.edu", role = "aut"))
