@@ -15,7 +15,7 @@
 #' @param filter_by Optional. Name of the value to filter the `col_data` column by values. Only works when `col_data` is also included.
 #' @param basemap Optional. A spatial object (e.g., an `sf` or `raster` object) to use as background for plot.
 #' @param input_crs Optional. Specify a different EPSG code or PROJ string for CRS in your input data. Default coordinate system is EPSG:4326 (WGS 84).
-#' @param n_samples Optional. Integer to re-sample either entire dataset or optional filtered data. Default is set to multiply the number of rows by 1000.
+#' @param n_samples Optional. Integer to re-sample either entire dataset or optional filtered data. Default is set to multiply the number of rows by 100.
 #'
 #' @return A ggplot2 heatmap of resampled data — you can print it, save it, or add more layers if you want. And a resampled_data object with the data frame.
 #'
@@ -32,18 +32,15 @@
 #' my_data <- read.csv(system.file("extdata", "dc_sample.csv", package = "geoSweepR"))
 #' my_basemap <- terra::rast(system.file("extdata", "my_basemap.tif", package = "geoSweepR"))
 #'
-#' # Plot all resampled data without filtering or specifying resample size.
-#' resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude")
-#'
 #' # Plot filtered data and specify resample size.
-#' # - Example uses only "Homicide" and resamples to 10000.
+#' # - Example uses only "Homicide" and resamples to 300.
 #' resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude",
-#'                  col_data = "offense", filter_by = "Homicide", n_samples = 10000)
+#'                  col_data = "offense", filter_by = "Homicide", n_samples = 300)
 #'
 #' # Plot filtered data, specify resample size, and add a basemap layer underneath.
 #' # - Example uses only "Homicide" and resamples to 10000.
 #' resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude",
-#'                  col_data = "offense", filter_by = "Homicide", n_samples = 10000,
+#'                  col_data = "offense", filter_by = "Homicide", n_samples = 300,
 #'                  basemap = my_basemap)
 #'
 
@@ -66,7 +63,7 @@ resample_heatmap <- function(data, lat_col, lon_col, n_samples = NULL, col_data 
 
     #### Step 1.1.2.a: Set default if n_samples is NULL. Default is to multiply the number of rows by 1000.
     if (is.null(n_samples)){
-      n_samples <- 1000 * nrow(data)
+      n_samples <- 100 * nrow(data)
     }
 
     #### Step 1.1.2.b: Resample filtered data with either a specified n_sample or default n_sample. (if specified, you might have to play around with this number)
@@ -80,9 +77,9 @@ resample_heatmap <- function(data, lat_col, lon_col, n_samples = NULL, col_data 
 
     ### Step 1.2.1: Resampling
 
-    #### Step 1.2.1.a: Set default if n_samples is NULL. Default is to multiply the total number of rows in data set by 1000.
+    #### Step 1.2.1.a: Set default if n_samples is NULL. Default is to multiply the total number of rows in data set by 100.
     if (is.null(n_samples)){
-      n_samples <- 1000 * nrow(data)
+      n_samples <- 100 * nrow(data)
     }
 
     #### Step 1.2.1.b: Resample the entire dataset by `n_samples`.

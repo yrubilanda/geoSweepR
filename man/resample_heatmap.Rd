@@ -22,7 +22,7 @@ resample_heatmap(
 
 \item{lon_col}{Required. A string for the name of your longitude column}
 
-\item{n_samples}{Optional. Integer to re-sample either entire dataset or optional filtered data. Default is set to multiply the number of rows by 1000.}
+\item{n_samples}{Optional. Integer to re-sample either entire dataset or optional filtered data. Default is set to multiply the number of rows by 100.}
 
 \item{col_data}{Optional. Name of the column you are using to filter your data. Can be categorical or factor data for filtering purposes.}
 
@@ -49,18 +49,15 @@ It generates a smooth heatmap from latitude and longitude coordinates.You can al
 my_data <- read.csv(system.file("extdata", "dc_sample.csv", package = "geoSweepR"))
 my_basemap <- terra::rast(system.file("extdata", "my_basemap.tif", package = "geoSweepR"))
 
-# Plot all resampled data without filtering or specifying resample size.
-resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude")
-
 # Plot filtered data and specify resample size.
-# - Example uses only "Homicide" and resamples to 10000.
+# - Example uses only "Homicide" and resamples to 300.
 resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude",
-                 col_data = "offense", filter_by = "Homicide", n_samples = 10000)
+                 col_data = "offense", filter_by = "Homicide", n_samples = 300)
 
 # Plot filtered data, specify resample size, and add a basemap layer underneath.
 # - Example uses only "Homicide" and resamples to 10000.
 resample_heatmap(data = my_data, lat_col = "latitude", lon_col = "longitude",
-                 col_data = "offense", filter_by = "Homicide", n_samples = 10000,
+                 col_data = "offense", filter_by = "Homicide", n_samples = 300,
                  basemap = my_basemap)
 
 }

@@ -24,4 +24,4 @@ Suggests:
     knitr,
     maptiles,
     rmarkdown
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
