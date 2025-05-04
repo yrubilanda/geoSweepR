@@ -72,6 +72,7 @@ make_heatmap <- function(data, lat_col, lon_col, col_data = NULL, filter_by = NU
 
   # Add X and Y columns (in projected units) so we can use them in the plot
   data_proj <- cbind(data_proj, sf::st_coordinates(data_proj))
+  data_proj <- dplyr::filter(data_proj, !is.na(X), !is.na(Y))
   names(data_proj)[names(data_proj) == "X"] <- "x"  # rename for plotting
   names(data_proj)[names(data_proj) == "Y"] <- "y"
 
