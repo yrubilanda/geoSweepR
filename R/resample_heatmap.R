@@ -106,12 +106,15 @@ resample_heatmap <- function(data, lat_col, lon_col, n_samples = NULL, col_data 
     crs = input_crs,
     remove = FALSE
   )
+  ## Step 3.1: Verify geometry validity
+  data_sf <- sf::st_make_valid(data_sf)
 
   # Step 4: Handle Basemap
 
   ## Step 4.1: Basemap Present - Match the CRS to basemap
   if (!is.null(basemap)) {
     crs_target <- terra::crs(basemap)
+    if (is.na(crs_target)) stop("Basemap CRS is invalid or missing.")
     data_proj <- sf::st_transform(data_sf, crs = crs_target)
   }
 
